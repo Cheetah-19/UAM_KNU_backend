@@ -1,12 +1,45 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework.request import Request
-from rest_framework.response import Response
+from ..vertiports.models import Vertiport
+from .utils.vertiportMILP import *
+from .utils.getState import getState
+from .utils.nextStateSequence import nextStateSequence
+from .serializers import *
 from rest_framework import status
-from .optimization import *
+from rest_framework.response import Response
 
-class optimizer(APIView):
-    def get(self,request:Request ):
-        vert = Optimization(0.1)
-        solution = vert.optimizing()
-        return Response(solution,status=status.HTTP_200_OK)
+
+class OptimizationView(APIView):
+    def post(self, request):
+        # 필요한 데이터
+        json_data = request.data
+        user = request.user
+        vertiport = Vertiport.objects.get(pk=json_data['name'])
+
+        # 최적해 계산
+        vertiportMILP = VertiportMILP(vertiport, json_data['state'], json_data['weight'])
+        solution = vertiportMILP.solve()
+
+        # 회원인 경우 결과 저장
+        if user.is_authenticated:
+            try:
+                json_state = json_data['state']
+
+                # 새로운 state이면 저장
+                state = getState(json_state)
+                if not state:
+                    json_state['sequence'] = nextStateSequence(user, vertiport)
+                    serializer = StateSerializer(data=json_state)
+                    if serializer.is_valid():
+                        state = serializer.save(user=user, vertiport=vertiport)
+
+                # 최적해 저장
+                solution['weight'] = json_data['weight']
+                serializer = OptimizationSerializer(data=solution)
+                if serializer.is_valid():
+                    optimization = serializer.save(state=state)
+
+                return Response({'message': 'success', 'result': solution, 'state': str(state), 'optimization': str(optimization)}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({'message': 'success', 'result': solution, 'state': 'failed', 'optimization': 'failed'}, status=status.HTTP_200_OK)
+
+        return Response({'message': 'success', 'result': solution}, status=status.HTTP_200_OK)

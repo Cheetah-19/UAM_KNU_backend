@@ -51,4 +51,4 @@ class Optimization(models.Model):
         db_table = 'optimization'
 
     def __str__(self):
-        return f'{self.state.user.id}.{self.state.vertiport.name}.{self.state.sequecne}.{self.weight}'
+        return f'{self.state.user.id}.{self.state.vertiport.name}.{self.state.sequence}.{self.weight}'
