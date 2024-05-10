@@ -27,7 +27,7 @@ class State(models.Model):
         db_table = 'state'
 
     def __str__(self):
-        return f'{self.state.user.id}.{self.vertiport.name}.{self.sequence}'
+        return f'{self.user.id}.{self.vertiport.name}.{self.sequence}'
 
 
 class Optimization(models.Model):
