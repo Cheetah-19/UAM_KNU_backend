@@ -1,30 +1,30 @@
 import pulp
 
 
-class VertiportLP:
-    def __init__(self, weight):
-        self.max_fato_uam = 4
-        self.max_path_in_uam = 6
-        self.max_gate_uam = 8
-        self.max_path_out_uam = 6
-        self.max_waiting_room_psg = 100
+class VertiportMILP:
+    def __init__(self, vertiport, state, weight):
+        self.max_fato_uam = vertiport.fato
+        self.max_path_in_uam = vertiport.path_in
+        self.max_gate_uam = vertiport.gate
+        self.max_path_out_uam = vertiport.path_out
+        self.max_waiting_room_psg = vertiport.waiting_room
 
-        self.current_fato_in_uam = 2
-        self.current_path_in_uam = 6
-        self.current_gate_uam = 3
-        self.current_path_out_uam = 2
-        self.current_fato_out_uam = 0
-        self.current_gate_uam_psg = 7
-        self.current_waiting_room_psg = 40
+        self.current_fato_in_uam = state['fato_in_UAM']
+        self.current_path_in_uam = state['path_in_UAM']
+        self.current_gate_uam = state['gate_UAM']
+        self.current_path_out_uam = state['path_out_UAM']
+        self.current_fato_out_uam = state['fato_out_UAM']
+        self.current_gate_uam_psg = state['gate_UAM_psg']
+        self.current_waiting_room_psg = state['waiting_room_psg']
         self.weight = weight
 
         # 의사결정 변수
-        self.x_fato_in_uam = pulp.LpVariable('fato_in_uam', lowBound=0, upBound=self.max_fato_uam, cat='Integer')
-        self.x_path_in_uam = pulp.LpVariable('path_in_uam', lowBound=0, upBound=self.max_path_in_uam, cat='Integer')
-        self.x_gate_uam = pulp.LpVariable('gate_uam', lowBound=0, upBound=self.max_gate_uam, cat='Integer')
-        self.x_path_out_uam = pulp.LpVariable('path_out_uam', lowBound=0, upBound=self.max_path_out_uam, cat='Integer')
-        self.x_fato_out_uam = pulp.LpVariable('fato_out_uam', lowBound=0, upBound=self.max_fato_uam, cat='Integer')
-        self.x_gate_uam_psg = pulp.LpVariable('gate_uam_psg', lowBound=0, upBound=4 * self.max_gate_uam, cat='Integer')
+        self.x_fato_in_uam = pulp.LpVariable('fato_in_UAM', lowBound=0, upBound=self.max_fato_uam, cat='Integer')
+        self.x_path_in_uam = pulp.LpVariable('path_in_UAM', lowBound=0, upBound=self.max_path_in_uam, cat='Integer')
+        self.x_gate_uam = pulp.LpVariable('gate_UAM', lowBound=0, upBound=self.max_gate_uam, cat='Integer')
+        self.x_path_out_uam = pulp.LpVariable('path_out_UAM', lowBound=0, upBound=self.max_path_out_uam, cat='Integer')
+        self.x_fato_out_uam = pulp.LpVariable('fato_out_UAM', lowBound=0, upBound=self.max_fato_uam, cat='Integer')
+        self.x_gate_uam_psg = pulp.LpVariable('gate_UAM_psg', lowBound=0, upBound=4 * self.max_gate_uam, cat='Integer')
         self.x_waiting_room_psg = pulp.LpVariable('waiting_room_psg', lowBound=0, upBound=self.max_waiting_room_psg, cat='Integer')
 
         self.w1, self.w2, self.w3, self.w4, self.w5, self.w6 = (0.04, 0.02, 0.38, 0.31, 0.1, 0.15)
@@ -92,7 +92,7 @@ class VertiportLP:
 
     def solve(self):
         problem = self.set_problem()
-        problem.solve()
+        problem.solve(pulp.PULP_CBC_CMD(msg=False))
 
         solution = {}
         for var in problem.variables():
