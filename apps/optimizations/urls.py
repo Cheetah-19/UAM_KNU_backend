@@ -1,8 +1,6 @@
 from django.urls import path
-from . import views
-
-app_name = 'optimizations'
+from .views import *
 
 urlpatterns = [
-    path('',views.optimizer().as_view(),name='optimizer')
+    path('', OptimizationView.as_view(), name='optimization')
 ]
