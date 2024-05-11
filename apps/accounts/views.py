@@ -15,10 +15,9 @@ class RegisterView(APIView):
         if serializer.is_valid():
             # DB에 저장
             user = serializer.save()
-            return Response({'message': 'register success', 'id': user.id, 'phone_number': user.phone_number},
-                            status=status.HTTP_200_OK)
+            return Response({'result': 'success', 'data': {'id': user.id, 'phone_number': user.phone_number}}, status=status.HTTP_200_OK)
 
-        return Response({'message': 'register failed', 'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'result': 'fail', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AuthView(APIView):
@@ -34,11 +33,13 @@ class AuthView(APIView):
             access_token = str(token.access_token)
             res = Response(
                 {
-                    'message': 'login success',
-                    'id': user.id,
-                    'token': {
-                        "access": access_token,
-                        "refresh": refresh_token,
+                    'result': 'success',
+                    'data': {
+                        'id': user.id,
+                        'token': {
+                            "access": access_token,
+                            "refresh": refresh_token,
+                        }
                     },
                 },
                 status=status.HTTP_200_OK,
@@ -49,12 +50,12 @@ class AuthView(APIView):
             res.set_cookie('refresh', refresh_token, httponly=True)
             return res
         else:
-            return Response({'message': 'login failed'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'result': 'fail', 'message': 'The ID or password is incorrect.'}, status=status.HTTP_400_BAD_REQUEST)
 
     # 로그아웃
     def delete(self, request):
         # 쿠키에 저장된 JWT 삭제
-        response = Response({'message': 'logout success'}, status=status.HTTP_202_ACCEPTED)
+        response = Response({'result': 'success', 'data': {'id': request.user.id}}, status=status.HTTP_202_ACCEPTED)
         response.delete_cookie("access")
         response.delete_cookie("refresh")
         return response

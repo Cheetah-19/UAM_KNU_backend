@@ -38,8 +38,8 @@ class OptimizationView(APIView):
                 if serializer.is_valid():
                     optimization = serializer.save(state=state)
 
-                return Response({'message': 'success', 'result': solution, 'state': str(state), 'optimization': str(optimization)}, status=status.HTTP_200_OK)
+                return Response({'result': 'success', 'data': {'solution': solution, 'state': str(state), 'optimization': str(optimization)}}, status=status.HTTP_200_OK)
             except Exception as e:
-                return Response({'message': 'success', 'result': solution, 'state': 'failed', 'optimization': 'failed'}, status=status.HTTP_200_OK)
+                return Response({'result': 'success', 'data': {'solution': solution, 'state': 'fail', 'optimization': 'fail'}}, status=status.HTTP_200_OK)
 
-        return Response({'message': 'success', 'result': solution}, status=status.HTTP_200_OK)
+        return Response({'result': 'success', 'data': {'solution': solution}}, status=status.HTTP_200_OK)

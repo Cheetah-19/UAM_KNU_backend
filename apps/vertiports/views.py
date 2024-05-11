@@ -13,7 +13,7 @@ class VertiportView(APIView):
     def get(self, request):
         vertiports = Vertiport.objects.all()
         serializer = VertiportSerializer(vertiports, many=True)
-        return Response({'message': 'get success', 'results': serializer.data}, status=status.HTTP_200_OK)
+        return Response({'result': 'success', 'data': serializer.data}, status=status.HTTP_200_OK)
 
     # 버티포트 생성
     def post(self, request):
@@ -24,19 +24,17 @@ class VertiportView(APIView):
         if serializer.is_valid():
             # DB에 저장
             vertiport = serializer.save()
-            return Response({'message': 'post success', 'name': vertiport.name}, status=status.HTTP_200_OK)
+            return Response({'result': 'success', 'data': {'name': vertiport.name}}, status=status.HTTP_200_OK)
 
-        return Response({'message': 'post failed', 'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'result': 'fail', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     # 버티포트 삭제
     def delete(self, request, name):
         # 관리자만 삭제 가능
         if request.user.is_admin:
-            try:
-                vertiport = Vertiport.objects.get(pk=name)
+            vertiport = Vertiport.objects.filter(name=name).first()
+            if vertiport:
                 vertiport.delete()
-                return Response({'message': 'delete success'}, status=status.HTTP_200_OK)
-            except Exception as e:
-                return Response({'message': 'delete failed'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'result': 'success', 'data': {'name': name}}, status=status.HTTP_200_OK)
 
-        return Response({'message': 'delete failed'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'result': 'fail', 'message': 'Unauthorized'}, status=status.HTTP_400_BAD_REQUEST)
