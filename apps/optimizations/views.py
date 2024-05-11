@@ -46,7 +46,6 @@ class OptimizationView(APIView):
                     optimization = serializer.save(state=state)
                     res_optimization = str(optimization)
             except Exception as e:
-                print(serializer.errors)
                 pass
 
             return Response({'result': 'success', 'data': {'solution': solution, 'state': res_state, 'optimization': res_optimization}}, status=status.HTTP_200_OK)

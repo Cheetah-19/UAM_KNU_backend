@@ -25,8 +25,8 @@ class VertiportView(APIView):
             # DB에 저장
             vertiport = serializer.save()
             return Response({'result': 'success', 'data': {'name': vertiport.name}}, status=status.HTTP_200_OK)
-
-        return Response({'result': 'fail', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'result': 'fail', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     # 버티포트 삭제
     def delete(self, request, name):
@@ -36,5 +36,5 @@ class VertiportView(APIView):
             if vertiport:
                 vertiport.delete()
             return Response({'result': 'success', 'data': {'name': name}}, status=status.HTTP_200_OK)
-
-        return Response({'result': 'fail', 'message': 'Unauthorized'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'result': 'fail', 'message': 'Unauthorized'}, status=status.HTTP_400_BAD_REQUEST)
