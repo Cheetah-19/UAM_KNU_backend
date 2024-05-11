@@ -13,33 +13,42 @@ class OptimizationView(APIView):
         # 필요한 데이터
         json_data = request.data
         user = request.user
-        vertiport = Vertiport.objects.get(pk=json_data['name'])
+        vertiport = Vertiport.objects.get(name=json_data['name'])
+        json_state = json_data['state']
+        weight = round(json_data['weight'], 2)
 
         # 최적해 계산
-        vertiportMILP = VertiportMILP(vertiport, json_data['state'], json_data['weight'])
+        vertiportMILP = VertiportMILP(vertiport, json_state, weight)
         solution = vertiportMILP.solve()
 
         # 회원인 경우 결과 저장
         if user.is_authenticated:
-            try:
-                json_state = json_data['state']
+            res_state = 'null'
+            res_optimization = 'null'
 
-                # 새로운 state이면 저장
-                state = getState(json_state)
-                if not state:
-                    json_state['sequence'] = nextStateSequence(user, vertiport)
+            # 새로운 state이면 저장
+            state = getState(json_state, vertiport)
+            if not state:
+                json_state['sequence'] = nextStateSequence(user, vertiport)
+                try:
                     serializer = StateSerializer(data=json_state)
                     if serializer.is_valid():
                         state = serializer.save(user=user, vertiport=vertiport)
+                        res_state = str(state)
+                except Exception as e:
+                    pass
 
-                # 최적해 저장
-                solution['weight'] = json_data['weight']
+            # 최적해 저장
+            try:
+                solution['weight'] = round(json_data['weight'], 2)
                 serializer = OptimizationSerializer(data=solution)
                 if serializer.is_valid():
                     optimization = serializer.save(state=state)
-
-                return Response({'result': 'success', 'data': {'solution': solution, 'state': str(state), 'optimization': str(optimization)}}, status=status.HTTP_200_OK)
+                    res_optimization = str(optimization)
             except Exception as e:
-                return Response({'result': 'success', 'data': {'solution': solution, 'state': 'fail', 'optimization': 'fail'}}, status=status.HTTP_200_OK)
+                print(serializer.errors)
+                pass
 
-        return Response({'result': 'success', 'data': {'solution': solution}}, status=status.HTTP_200_OK)
+            return Response({'result': 'success', 'data': {'solution': solution, 'state': res_state, 'optimization': res_optimization}}, status=status.HTTP_200_OK)
+        else:
+            return Response({'result': 'success', 'data': {'solution': solution}}, status=status.HTTP_200_OK)
