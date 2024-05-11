@@ -97,7 +97,7 @@ class VertiportMILP:
         solution = {}
         for var in problem.variables():
             solution[var.name] = var.varValue
-        solution['congestion'] = self.get_congestion()
-        solution['utilization'] = self.get_utilization()
+        solution['congestion'] = round(self.get_congestion(), 2)
+        solution['utilization'] = round(self.get_utilization(), 2)
 
         return solution

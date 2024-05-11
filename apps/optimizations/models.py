@@ -39,6 +39,8 @@ class Optimization(models.Model):
     fato_out_UAM = models.SmallIntegerField(default=0, null=False, blank=False)
     gate_UAM_psg = models.SmallIntegerField(default=0, null=False, blank=False)
     waiting_room_psg = models.SmallIntegerField(default=0, null=False, blank=False)
+    congestion = models.DecimalField(max_digits=4, decimal_places=2, null=False, blank=False)
+    utilization = models.DecimalField(max_digits=4, decimal_places=2, null=False, blank=False)
     state = models.ForeignKey(State, on_delete=models.CASCADE)
 
     class Meta:
