@@ -39,8 +39,8 @@ class OptimizationView(APIView):
                     pass
 
             # 최적해 저장
+            solution['weight'] = round(json_data['weight'], 2)
             try:
-                solution['weight'] = round(json_data['weight'], 2)
                 serializer = OptimizationSerializer(data=solution)
                 if serializer.is_valid():
                     optimization = serializer.save(state=state)

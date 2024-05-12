@@ -37,4 +37,4 @@ class VertiportView(APIView):
                 vertiport.delete()
             return Response({'result': 'success', 'data': {'name': name}}, status=status.HTTP_200_OK)
         else:
-            return Response({'result': 'fail', 'message': 'Unauthorized'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'result': 'fail', 'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
