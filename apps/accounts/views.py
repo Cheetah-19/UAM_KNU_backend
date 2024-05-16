@@ -22,6 +22,10 @@ class RegisterView(APIView):
 
         return Response({'result': 'fail', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request):
+        # 회원탈퇴
+        pass
+
 
 class AuthView(APIView):
     # 로그인
@@ -64,6 +68,50 @@ class AuthView(APIView):
         return response
 
 
+class ChangeView(APIView):
+    # 인증된 사용자만 view 접근 허용
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        password = request.data['new_password1']
+
+        # 이전 비밀번호가 맞지 않음
+        if not user.check_password(request.data['old_password']):
+            return Response({'result': 'fail', 'message': 'Your old password was entered incorrectly'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 새 비밀번호 확인이 맞지 않음
+        if password != request.data['new_password2']:
+            return Response({'result': 'fail', 'message': 'The two password fields didn’t match.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 비밀번호 변경
+        user.set_password(password)
+        user.save()
+
+        # JWT 재발급
+        token = TokenObtainPairSerializer.get_token(user)
+        refresh_token = str(token)
+        access_token = str(token.access_token)
+        res = Response(
+            {
+                'result': 'success',
+                'data': {
+                    'id': user.id,
+                    'token': {
+                        "access": access_token,
+                        "refresh": refresh_token,
+                    }
+                },
+            },
+            status=status.HTTP_200_OK,
+        )
+
+        # 재발급한 JWT을 쿠키에 저장
+        res.set_cookie('access', access_token, httponly=True)
+        res.set_cookie('refresh', refresh_token, httponly=True)
+        return res
+
+
 class HistoryView(APIView):
     # 인증된 사용자만 view 접근 허용
     permission_classes = [IsAuthenticated]
@@ -87,4 +135,4 @@ class HistoryView(APIView):
                 optimizations = Optimization.objects.filter(state=state)
                 return Response({'result': 'success', 'data': {'optimization': OptimizationSerializer(optimizations, many=True).data}}, status=status.HTTP_200_OK)
         else:
-            return Response({'result': 'fail', 'massage': 'vertiport name is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'result': 'fail', 'massage': 'The vertiport name is required.'}, status=status.HTTP_400_BAD_REQUEST)
