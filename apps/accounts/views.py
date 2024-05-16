@@ -22,9 +22,17 @@ class RegisterView(APIView):
 
         return Response({'result': 'fail', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+    # 회원탈퇴
     def delete(self, request):
-        # 회원탈퇴
-        pass
+        if request.user.is_authenticated:
+            request.user.delete()
+
+            response = Response({'result': 'success', 'message': 'User has been deleted.'}, status=status.HTTP_200_OK)
+            response.delete_cookie("access")
+            response.delete_cookie("refresh")
+            return response
+        else:
+            return Response({'result': 'fail', 'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class AuthView(APIView):
@@ -135,4 +143,4 @@ class HistoryView(APIView):
                 optimizations = Optimization.objects.filter(state=state)
                 return Response({'result': 'success', 'data': {'optimization': OptimizationSerializer(optimizations, many=True).data}}, status=status.HTTP_200_OK)
         else:
-            return Response({'result': 'fail', 'massage': 'The vertiport name is required.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'result': 'fail', 'massage': 'Vertiport name is required.'}, status=status.HTTP_400_BAD_REQUEST)
