@@ -60,6 +60,7 @@ jobs:
             sudo apt-get update
             sudo apt-get -y upgrade
             cd temp/UAM_KNU_backend
+            git pull
             sudo lsof -t -i tcp:8000 | xargs kill -9
             pip install -r requirements.txt
             python3 manage.py makemigrations
