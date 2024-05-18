@@ -43,3 +43,26 @@ jobs:
     - name: Run Tests
       run: |
         python manage.py test
+
+  deploy:
+
+    needs: build
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Connect EC2 ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PEM }}
+          script: |
+            sudo apt-get update
+            sudo apt-get -y upgrade
+            cd temp/UAM_KNU_backend
+            sudo lsof -t -i tcp:8000 | xargs kill -9
+            pip install -r requirements.txt
+            python3 manage.py makemigrations
+            python3 manage.py migrate
+            nohup python3 manage.py runserver 0:8000 &
+            exit 0
