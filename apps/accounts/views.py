@@ -49,8 +49,8 @@ class AuthView(APIView):
             )
 
             # JWT을 쿠키에 저장
-            res.set_cookie('access', access_token, httponly=True)
-            res.set_cookie('refresh', refresh_token, httponly=True)
+            res.set_cookie('access', access_token, httponly=True, secure=True, samesite='None')
+            res.set_cookie('refresh', refresh_token, httponly=True, secure=True, samesite='None')
             return res
         else:
             return Response({'result': 'fail', 'message': 'The ID or password is incorrect.'}, status=status.HTTP_400_BAD_REQUEST)
