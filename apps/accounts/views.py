@@ -43,8 +43,9 @@ class AuthView(APIView):
                         'token': {
                             "access": access_token,
                             "refresh": refresh_token,
-                        }
-                    },
+                        },
+                        'admin': user.is_admin
+                    }
                 },
                 status=status.HTTP_200_OK,
             )
@@ -98,7 +99,7 @@ class ChangeView(APIView):
                         "access": access_token,
                         "refresh": refresh_token,
                     }
-                },
+                }
             },
             status=status.HTTP_200_OK,
         )
@@ -149,7 +150,7 @@ class CustomTokenRefreshView(TokenRefreshView):
                         'result': 'success',
                         'data': {
                             'token': access_token
-                        },
+                        }
                     },
                     status=status.HTTP_200_OK,
                 )
