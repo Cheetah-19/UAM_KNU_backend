@@ -23,6 +23,18 @@ class RegisterView(APIView):
 
         return Response({'result': 'fail', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+    # 회원탈퇴
+    def delete(self, request):
+        if request.user.is_authenticated:
+            request.user.delete()
+
+            response = Response({'result': 'success', 'message': 'User has been deleted.'}, status=status.HTTP_200_OK)
+            response.delete_cookie("access")
+            response.delete_cookie("refresh")
+            return response
+        else:
+            return Response({'result': 'fail', 'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 class AuthView(APIView):
     # 로그인
@@ -35,7 +47,7 @@ class AuthView(APIView):
             token = TokenObtainPairSerializer.get_token(user)
             refresh_token = str(token)
             access_token = str(token.access_token)
-            res = Response(
+            response = Response(
                 {
                     'result': 'success',
                     'data': {
@@ -51,9 +63,9 @@ class AuthView(APIView):
             )
 
             # JWT을 쿠키에 저장
-            res.set_cookie('access', access_token, httponly=True, secure=True, samesite='None')
-            res.set_cookie('refresh', refresh_token, httponly=True, secure=True, samesite='None')
-            return res
+            response.set_cookie('access', access_token, httponly=True, secure=True, samesite='None')
+            response.set_cookie('refresh', refresh_token, httponly=True, secure=True, samesite='None')
+            return response
         else:
             return Response({'result': 'fail', 'message': 'The ID or password is incorrect.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -90,7 +102,7 @@ class ChangeView(APIView):
         token = TokenObtainPairSerializer.get_token(user)
         refresh_token = str(token)
         access_token = str(token.access_token)
-        res = Response(
+        response = Response(
             {
                 'result': 'success',
                 'data': {
@@ -105,9 +117,9 @@ class ChangeView(APIView):
         )
 
         # 재발급한 JWT을 쿠키에 저장
-        res.set_cookie('access', access_token, httponly=True, secure=True, samesite='None')
-        res.set_cookie('refresh', refresh_token, httponly=True, secure=True, samesite='None')
-        return res
+        response.set_cookie('access', access_token, httponly=True, secure=True, samesite='None')
+        response.set_cookie('refresh', refresh_token, httponly=True, secure=True, samesite='None')
+        return response
 
 
 class HistoryView(APIView):
