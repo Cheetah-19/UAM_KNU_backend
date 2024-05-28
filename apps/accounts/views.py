@@ -46,7 +46,7 @@ class AuthView(APIView):
             token = TokenObtainPairSerializer.get_token(user)
             refresh_token = str(token)
             access_token = str(token.access_token)
-            res = Response(
+            response = Response(
                 {
                     'result': 'success',
                     'data': {
@@ -61,9 +61,9 @@ class AuthView(APIView):
             )
 
             # JWT을 쿠키에 저장
-            res.set_cookie('access', access_token, httponly=True)
-            res.set_cookie('refresh', refresh_token, httponly=True)
-            return res
+            response.set_cookie('access', access_token, httponly=True, secure=True, samesite='None')
+            response.set_cookie('refresh', refresh_token, httponly=True, secure=True, samesite='None')
+            return response
         else:
             return Response({'result': 'fail', 'message': 'The ID or password is incorrect.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -100,7 +100,7 @@ class ChangeView(APIView):
         token = TokenObtainPairSerializer.get_token(user)
         refresh_token = str(token)
         access_token = str(token.access_token)
-        res = Response(
+        response = Response(
             {
                 'result': 'success',
                 'data': {
@@ -109,15 +109,15 @@ class ChangeView(APIView):
                         "access": access_token,
                         "refresh": refresh_token,
                     }
-                },
+                }
             },
             status=status.HTTP_200_OK,
         )
 
         # 재발급한 JWT을 쿠키에 저장
-        res.set_cookie('access', access_token, httponly=True)
-        res.set_cookie('refresh', refresh_token, httponly=True)
-        return res
+        response.set_cookie('access', access_token, httponly=True, secure=True, samesite='None')
+        response.set_cookie('refresh', refresh_token, httponly=True, secure=True, samesite='None')
+        return response
 
 
 class HistoryView(APIView):
