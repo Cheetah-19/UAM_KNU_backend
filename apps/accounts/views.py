@@ -78,10 +78,11 @@ class AuthView(APIView):
         return response
 
 
-class ChangeView(APIView):
+class InfoView(APIView):
     # 인증된 사용자만 view 접근 허용
     permission_classes = [IsAuthenticated]
 
+    # 비밀번호 변경
     def post(self, request):
         user = request.user
         password = request.data['new_password1']
@@ -120,6 +121,11 @@ class ChangeView(APIView):
         response.set_cookie('access', access_token, httponly=True, secure=True, samesite='None')
         response.set_cookie('refresh', refresh_token, httponly=True, secure=True, samesite='None')
         return response
+
+    # user 정보
+    def get(self, request):
+        user = request.user
+        return Response({'result': 'success', 'data': {'id': user.id, 'is_admin': user.is_admin, 'phone_number': user.phone_number}}, status=status.HTTP_200_OK)
 
 
 class HistoryView(APIView):
