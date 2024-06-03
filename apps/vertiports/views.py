@@ -38,3 +38,25 @@ class VertiportView(APIView):
             return Response({'result': 'success', 'data': {'name': name}}, status=status.HTTP_200_OK)
         else:
             return Response({'result': 'fail', 'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    # 버티포트 수정
+    def put(self, request):
+        # 관리자만 삭제 가능
+        if request.user.is_admin:
+            vertiport = Vertiport.objects.filter(name=request.data['name']).first()
+
+            if vertiport is None:
+                return Response({'result': 'fail', 'message': 'Vertiport name is incorrect.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # 역직렬화 (JSON -> model)
+            serializer = VertiportSerializer(vertiport, data=request.data)
+
+            # 유효성 검사
+            if serializer.is_valid():
+                # DB에 저장
+                vertiport = serializer.save()
+                return Response({'result': 'success', 'data': {'name': vertiport.name}}, status=status.HTTP_200_OK)
+
+            return Response({'result': 'fail', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'result': 'fail', 'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
