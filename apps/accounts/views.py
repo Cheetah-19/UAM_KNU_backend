@@ -149,7 +149,7 @@ class HistoryView(APIView):
             else:
                 state = states.filter(sequence=state_sequence).first()
                 optimizations = Optimization.objects.filter(state=state)
-                return Response({'result': 'success', 'data': {'optimization': OptimizationSerializer(optimizations, many=True).data}}, status=status.HTTP_200_OK)
+                return Response({'result': 'success', 'data': {'optimizations': OptimizationSerializer(optimizations, many=True).data}}, status=status.HTTP_200_OK)
         else:
             return Response({'result': 'fail', 'message': 'Vertiport name is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
