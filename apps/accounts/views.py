@@ -63,8 +63,8 @@ class AuthView(APIView):
             )
 
             # JWT을 쿠키에 저장
-            response.set_cookie('access', access_token, httponly=True, secure=True, samesite='None')
-            response.set_cookie('refresh', refresh_token, httponly=True, secure=True, samesite='None')
+            response.set_cookie('access', access_token, httponly=True)
+            response.set_cookie('refresh', refresh_token, httponly=True)
             return response
         else:
             return Response({'result': 'fail', 'message': 'The ID or password is incorrect.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -118,8 +118,8 @@ class InfoView(APIView):
         )
 
         # 재발급한 JWT을 쿠키에 저장
-        response.set_cookie('access', access_token, httponly=True, secure=True, samesite='None')
-        response.set_cookie('refresh', refresh_token, httponly=True, secure=True, samesite='None')
+        response.set_cookie('access', access_token, httponly=True)
+        response.set_cookie('refresh', refresh_token, httponly=True)
         return response
 
     # user 정보
@@ -174,7 +174,7 @@ class CustomTokenRefreshView(TokenRefreshView):
                 )
 
                 # 재발급한 access token을 쿠키에 저장
-                res.set_cookie('access', access_token['access'], httponly=True, secure=True, samesite='None')
+                res.set_cookie('access', access_token['access'], httponly=True)
                 return res
             else:
                 raise Exception('There is no refresh in cookie')
