@@ -20,6 +20,7 @@ class OptimizationView(APIView):
         # 최적해 계산
         vertiportMILP = VertiportMILP(vertiport, json_state, weight)
         solution = vertiportMILP.solve()
+        solution['weight'] = round(json_data['weight'], 2)
 
         # 회원인 경우 결과 저장
         if user.is_authenticated:
@@ -39,7 +40,6 @@ class OptimizationView(APIView):
                     pass
 
             # 최적해 저장
-            solution['weight'] = round(json_data['weight'], 2)
             try:
                 serializer = OptimizationSerializer(data=solution)
                 if serializer.is_valid():
